@@ -159,7 +159,7 @@ namespace wchisp.Devices
                 ChipId = 0x51,
                 FlashSize = 10 * 1024,
                 EEPROMSize = 128,
-                EEPROMStartAddr = 0x2800
+                EEPROMStartAddr = 0xC000
             },
             new WCHDeviceVariant()
             {
@@ -167,7 +167,7 @@ namespace wchisp.Devices
                 ChipId = 0x52,
                 FlashSize = 14 * 1024,
                 EEPROMSize = 128,
-                EEPROMStartAddr = 14 * 1024
+                EEPROMStartAddr = 0xC000
             },
             new WCHDeviceVariant()
             {
@@ -175,47 +175,47 @@ namespace wchisp.Devices
                 ChipId = 0x54,
                 FlashSize = 14 * 1024,
                 EEPROMSize = 128,
-                EEPROMStartAddr = 14 * 1024
+                EEPROMStartAddr = 0xC000
             },
             new WCHDeviceVariant()
             {
                 Name = "CH555",
                 ChipId = 0x55,
-                FlashSize = 61440,
-                EEPROMSize = 1024,
-                EEPROMStartAddr = 61440
+                FlashSize = 60 * 1024,
+                EEPROMSize = 1 * 1024,
+                EEPROMStartAddr = 0xF000
             },
             new WCHDeviceVariant()
             {
                 Name = "CH556",
                 ChipId = 0x56,
-                FlashSize = 61440,
-                EEPROMSize = 1024,
-                EEPROMStartAddr = 61440
+                FlashSize = 60 * 1024,
+                EEPROMSize = 1 * 1024,
+                EEPROMStartAddr = 0xF000
             },
             new WCHDeviceVariant()
             {
                 Name = "CH557",
                 ChipId = 0x57,
-                FlashSize = 61440,
-                EEPROMSize = 1024,
-                EEPROMStartAddr = 61440
+                FlashSize = 60 * 1024,
+                EEPROMSize = 1 * 1024,
+                EEPROMStartAddr = 0xF000
             },
             new WCHDeviceVariant()
             {
                 Name = "CH558",
                 ChipId = 0x58,
-                FlashSize = 60 * 1024,
-                EEPROMSize = 5 * 1024,
-                EEPROMStartAddr = 0xF000
+                FlashSize = 32 * 1024,
+                EEPROMSize = 3 * 1024,
+                EEPROMStartAddr = 0xE000
             },
             new WCHDeviceVariant()
             {
                 Name = "CH559",
                 ChipId = 0x59,
-                FlashSize = 1024,
-                EEPROMSize = 5 * 1024,
-                EEPROMStartAddr = 60 * 1024
+                FlashSize =  60 * 1024,
+                EEPROMSize = 1 * 1024,
+                EEPROMStartAddr = 0xF000
             }
         };
     }
