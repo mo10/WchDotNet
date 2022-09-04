@@ -4,7 +4,7 @@ using System.Text;
 
 namespace wchisp.Devices
 {
-    class CH55x : IWCHDevice
+    public class CH55x : IWCHDevice
     {
         public string Name => "CH55x Series";
 
@@ -144,7 +144,7 @@ namespace wchisp.Devices
                         Explaination = new Dictionary<byte, string>()
                         {
                             {0b11111111, "Default"},
-                            {0xff, "Error"}
+                            {0, "Error"}
                         }
                     }
                 }
@@ -153,7 +153,7 @@ namespace wchisp.Devices
 
         public WCHDeviceVariant[] variants => new WCHDeviceVariant[]
         {
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name = "CH551",
                 ChipId = 0x51,
@@ -161,7 +161,7 @@ namespace wchisp.Devices
                 EEPROMSize = 128,
                 EEPROMStartAddr = 0xC000
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name = "CH552",
                 ChipId = 0x52,
@@ -169,7 +169,7 @@ namespace wchisp.Devices
                 EEPROMSize = 128,
                 EEPROMStartAddr = 0xC000
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name = "CH554",
                 ChipId = 0x54,
@@ -177,7 +177,7 @@ namespace wchisp.Devices
                 EEPROMSize = 128,
                 EEPROMStartAddr = 0xC000
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name = "CH555",
                 ChipId = 0x55,
@@ -185,7 +185,7 @@ namespace wchisp.Devices
                 EEPROMSize = 1 * 1024,
                 EEPROMStartAddr = 0xF000
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name = "CH556",
                 ChipId = 0x56,
@@ -193,7 +193,7 @@ namespace wchisp.Devices
                 EEPROMSize = 1 * 1024,
                 EEPROMStartAddr = 0xF000
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name = "CH557",
                 ChipId = 0x57,
@@ -201,7 +201,7 @@ namespace wchisp.Devices
                 EEPROMSize = 1 * 1024,
                 EEPROMStartAddr = 0xF000
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name = "CH558",
                 ChipId = 0x58,
@@ -209,7 +209,7 @@ namespace wchisp.Devices
                 EEPROMSize = 3 * 1024,
                 EEPROMStartAddr = 0xE000
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name = "CH559",
                 ChipId = 0x59,

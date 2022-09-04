@@ -4,7 +4,7 @@ using System.Text;
 
 namespace wchisp.Devices
 {
-    class CH56x : IWCHDevice
+    public class CH56x : IWCHDevice
     {
         public string Name => "CH56x Series";
 
@@ -24,7 +24,7 @@ namespace wchisp.Devices
 
         public WCHDeviceVariant[] variants => new WCHDeviceVariant[]
         {
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name ="CH561",
                 ChipId = 0x61,
@@ -34,7 +34,7 @@ namespace wchisp.Devices
                 IsSupportUSB = false,
                 IsSupportNet = true
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name ="CH563",
                 ChipId = 0x63,
@@ -44,7 +44,7 @@ namespace wchisp.Devices
                 IsSupportUSB = true,
                 IsSupportNet = true
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name ="CH565",
                 ChipId = 0x65,
@@ -54,7 +54,7 @@ namespace wchisp.Devices
                 IsSupportNet = false,
                 EEPROMStartAddr = 0
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name ="CH566",
                 ChipId = 0x66,
@@ -64,7 +64,7 @@ namespace wchisp.Devices
                 IsSupportNet = false,
                 EEPROMStartAddr = 0
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name ="CH567",
                 ChipId = 0x67,
@@ -73,7 +73,7 @@ namespace wchisp.Devices
                 IsSupportUSB = true,
                 IsSupportNet = false
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name ="CH568",
                 ChipId = 0x68,
@@ -82,7 +82,7 @@ namespace wchisp.Devices
                 IsSupportUSB = true,
                 IsSupportNet = false
             },
-            new WCHDeviceVariant()
+            new WCHDeviceVariant(this)
             {
                 Name ="CH569",
                 ChipId = 0x69,

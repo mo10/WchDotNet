@@ -5,7 +5,7 @@ using System.Text;
 namespace wchisp.Devices
 {
 
-    class WCHDeviceRegisterField
+    public class WCHDeviceRegisterField
     {
         /// <summary>
         /// Inclusive range, [MSB, LSB]
@@ -15,7 +15,7 @@ namespace wchisp.Devices
         public string Description = string.Empty;
         public Dictionary<byte, string> Explaination = null;
     }
-    class WCHDeviceRegister
+    public class WCHDeviceRegister
     {
         public byte Offset = 0;
         public string Name = string.Empty;
@@ -26,7 +26,7 @@ namespace wchisp.Devices
         public uint Reset = 0;
         public WCHDeviceRegisterField[] Fields = null;
     }
-    class WCHDeviceVariant
+    public class WCHDeviceVariant
     {
         public string Name = string.Empty;
         public byte ChipId = 0;
@@ -37,9 +37,23 @@ namespace wchisp.Devices
         public bool IsSupportUSB = false;
         public bool IsSupportSerial = false;
         public bool IsSupportNet = false;
+
+        public IWCHDevice Family { get; private set; }
+        public byte MCUType { get { return Family.MCUType; } }
+        public byte DeviceType { get { return Family.DeviceType; } }
+        public WCHDeviceRegister[] ConfigRegisters { get { return Family.ConfigRegisters; } }
+
+        public WCHDeviceVariant(IWCHDevice family)
+        {
+            Family = family;
+
+            IsSupportUSB = family.IsSupportUSB;
+            IsSupportSerial = family.IsSupportSerial;
+            IsSupportNet = family.IsSupportNet;
+        }
     }
 
-    interface IWCHDevice
+    public interface IWCHDevice
     {
         string Name { get; }
         byte MCUType { get; }
