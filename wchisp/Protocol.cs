@@ -115,21 +115,37 @@ namespace wchisp
             return buf.ToArray();
         }
     }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 0)]
-    struct IspData
+    public class Response
     {
-        public byte Command;
-        public byte Check;
-        public ushort Length;
-        public byte[] Data;
-        public static IspData FromRaw(byte[] raw)
+        [StructLayout(LayoutKind.Sequential, Pack = 0)]
+        public struct IspInfo
         {
-            var handle = GCHandle.Alloc(raw, GCHandleType.Pinned);
-            var result = (IspData)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(IspData));
-            handle.Free();
+            public byte Command;
+            public byte Unknown;
+            public ushort Length;
+        }
+        public IspInfo Info;
+        public byte[] Payload;
+        public bool IsOK { get; private set; } = false;
 
-            return result;
+        public static Response FromRaw(byte[] buf, int buf_len)
+        {
+            Response resp = new Response();
+            var handle = GCHandle.Alloc(buf, GCHandleType.Pinned);
+            try
+            {
+                resp.Info = (IspInfo)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(IspInfo));
+                resp.Payload = new byte[buf_len - 4];
+                Array.Copy(buf, 4, resp.Payload, 0, buf_len - 4);
+            }
+            finally {
+                handle.Free();
+            }
+
+            if(resp.Payload.Length == resp.Info.Length)
+                resp.IsOK = true;
+
+            return resp;
         }
     }
 }
