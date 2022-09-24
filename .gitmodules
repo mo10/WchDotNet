@@ -1,0 +1,3 @@
+[submodule "rs-wchisp"]
+	path = rs-wchisp
+	url = https://github.com/ch32-rs/wchisp
