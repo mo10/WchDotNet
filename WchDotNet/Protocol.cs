@@ -4,7 +4,7 @@ using System.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace wchisp
+namespace WchDotNet
 {
     public static class Command
     {

@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <StartupObject>WchCli.Program</StartupObject>
+    <RootNamespace>WchCli</RootNamespace>
+    <AssemblyName>WchCli</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WchDotNet\WchDotNet.csproj" />
+  </ItemGroup>
+	<!--<ItemGroup>
+		<Compile Include="..\wchisp\*\*.cs;..\wchisp\*.cs">
+			<Link>wchisp\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</Compile>
+	</ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\rs-wchisp\devices\*.yaml" Exclude="**\SCHEMA.yaml">
+      <Link>Devices\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="ChipFamilYamlConverter.cs" />
+    <Compile Remove="ChipFamilyYamlDef.cs" />
+  </ItemGroup>-->
+
+</Project>

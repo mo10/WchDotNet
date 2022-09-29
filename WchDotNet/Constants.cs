@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace wchisp
+namespace WchDotNet
 {
     /// <summary>
     /// Constants about protocol and devices.

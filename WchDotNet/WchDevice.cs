@@ -4,32 +4,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WchDotNet.Devices;
 
-namespace wchisp
+namespace WchDotNet
 {
-    public class WCHUsbDevice
+    public class WchDevice : IDisposable
     {
-        public UsbRegistry UsbRegistry { get; private set; }
-
         private UsbDevice UsbDevice;
         private UsbEndpointReader UsbReader;
         private UsbEndpointWriter UsbWriter;
 
-        public WCHUsbDevice(UsbRegistry usbRegistry)
+        public WchDevice(UsbRegistry usbRegistry)
         {
-            this.UsbRegistry = usbRegistry;
-        }
 
-        public bool Open()
-        {
-            if (UsbDevice != null)
-                return true;
-
-            if (!UsbRegistry.Open(out UsbDevice))
+            if (!usbRegistry.Open(out UsbDevice))
             {
-                return false;
+                throw new Exception("Cannot open device");
             }
-
 
             IUsbDevice wholeUsbDevice = UsbDevice as IUsbDevice;
             if (!ReferenceEquals(wholeUsbDevice, null))
@@ -49,28 +40,23 @@ namespace wchisp
             // open write endpoint 2.
             UsbWriter = UsbDevice.OpenEndpointWriter(WriteEndpointID.Ep02);
 
-            return true;
         }
 
-        public void Close()
+        public void Dispose()
         {
             if (UsbReader != null && !UsbReader.IsDisposed)
                 UsbReader.Dispose();
+            UsbReader = null;
             if (UsbWriter != null && !UsbWriter.IsDisposed)
                 UsbWriter.Dispose();
+            UsbWriter = null;
             if (UsbDevice != null && UsbDevice.IsOpen)
                 UsbDevice.Close();
-
-            UsbWriter = null;
-            UsbReader = null;
             UsbDevice = null;
         }
 
         public Response Transfer(byte[] write_buf)
         {
-            if (!this.Open())
-                throw new Exception("Failed to open device from registry");
-
             if (UsbWriter.Write(write_buf, 1000, out _) != ErrorCode.None)
                 goto Failed;
 
@@ -80,37 +66,39 @@ namespace wchisp
                 goto Failed;
 
             return Response.FromRaw(read_buf, buf_len);
-
         Failed:
             throw new Exception(UsbDevice.LastErrorString);
         }
 
+        public Chip GetChip()
+        {
+            byte[] buffer = Command.Identify(0, 0);
+            Response response = Transfer(buffer);
+
+            if (!response.IsOK)
+                throw new Exception("Failed to idenfity chip");
+
+            return ChipDB.FindChip(response.Payload[0], response.Payload[1]);
+        }
+
+        public byte[] ReadConfig()
+        {
+            byte[] buffer = Command.ReadConfig(Constants.CFG_MASK_ALL);
+            Response response = Transfer(buffer);
+
+            if (!response.IsOK)
+                throw new Exception("Failed to read config from chip");
+
+            return response.Payload;
+        }
+
         public bool ReadChipInfo()
         {
-            var buf = Command.Identify(0, 0);
-            var resp = Transfer(buf);
-
-            if (!resp.IsOK)
-            {
-                Console.WriteLine("Idenfity chip failed");
-                return false;
-            }
-
-            var chip_db = new ChipDB();
-
-            var chip = chip_db.FindChip(resp.Payload[0], resp.Payload[1]);
-            Console.WriteLine($"Found chip: {chip.Name}");
-
-            buf = Command.ReadConfig(Constants.CFG_MASK_ALL);
-            resp = Transfer(buf);
-            if (!resp.IsOK)
-            {
-                Console.WriteLine("read_config failed");
-                return false;
-            }
-            Console.WriteLine($"read_config: {string.Join(", ", resp.Payload.Select(b => b.ToString("X2")))}");
-
+            var chip = GetChip();
+            var buffer = ReadConfig();
+            Console.WriteLine($"read_config: {string.Join(", ", buffer.Select(b => b.ToString("X2")))}");
             return true;
         }
+
     }
 }

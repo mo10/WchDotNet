@@ -4,18 +4,18 @@ using System.Collections.Generic;
 using LibUsbDotNet.Main;
 using LibUsbDotNet;
 
-namespace wchisp
+namespace WchDotNet
 {
-    static public class WCHISP
+    static public class WchIsp
     {
-        static public IEnumerable<WCHUsbDevice> GetDevices()
+        static public IEnumerable<WchDevice> GetDevices()
         {
-            List<WCHUsbDevice> vs = new List<WCHUsbDevice>();
+            List<WchDevice> vs = new List<WchDevice>();
 
             foreach (UsbRegistry usbRegistry in UsbDevice.AllDevices)
             {
                 if (usbRegistry.Vid == 0x4348 && usbRegistry.Pid == 0x55E0)
-                    vs.Add(new WCHUsbDevice(usbRegistry));
+                    vs.Add(new WchDevice(usbRegistry));
             }
 
             return vs;
