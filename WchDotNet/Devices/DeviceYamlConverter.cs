@@ -76,7 +76,7 @@ namespace WchDotNet.Devices
                     { 'G', (2, 30) },
         };
 
-        private static object DeserializeIntegerHelper(TypeCode typeCode, string value)
+        public static object DeserializeIntegerHelper(TypeCode typeCode, string value)
         {
             var numberBuilder = new StringBuilder();
             var currentIndex = 0;
