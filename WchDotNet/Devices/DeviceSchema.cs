@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using YamlDotNet.Serialization;
 
 namespace WchDotNet.Devices
 {
+    /// <summary>
+    /// MCU Family
+    /// </summary>
     public class ChipFamily
     {
         public string name { get; internal set; }
@@ -16,6 +21,10 @@ namespace WchDotNet.Devices
         public Chip[] variants { get; internal set; }
         public ConfigRegister[] config_registers { get; internal set; }
     }
+
+    /// <summary>
+    /// Represents an MCU chip
+    /// </summary>
     public class Chip
     {
         public string name { get; internal set; }
@@ -92,7 +101,66 @@ namespace WchDotNet.Devices
         private bool _support_serial = false;
         private bool _support_net = false;
         private ConfigRegister[] _config_registers = null;
+
+        /// <summary>
+        /// DeviceType = ChipSeries = SerialNumber = McuType + 0x10
+        /// </summary>
+        internal byte _device_type
+        {
+            get
+            {
+                return (byte)(mcu_type + 0x10);
+            }
+        }
+        /// <summary>
+        /// Used when erasing 1K sectors
+        /// </summary>
+        public int min_erase_sector_number
+        {
+            get
+            {
+                if (_device_type == 0x10)
+                    return 4;
+                return 8;
+            }
+        }
+        /// <summary>
+        /// Used when calculating XOR key
+        /// </summary>
+        public int uid_size
+        {
+            get
+            {
+                if (_device_type == 0x11)
+                    return 4;
+                return 8;
+            }
+        }
+        /// <summary>
+        /// Code flash protect support
+        /// </summary>
+        public bool support_code_flash_protect
+        {
+            get
+            {
+                return new byte[] { 0x14, 0x15, 0x17, 0x18, 0x19, 0x20 }.Contains(_device_type);
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{name}[0x{chip_id:x02}{_device_type:x02}]";
+        }
     }
+
+    /// <summary>
+    /// A u32 config register, with reset values.
+    ///
+    /// The reset value is NOT the value of the register when the device is reset,
+    /// but the value of the register when the device is in the flash-able mode.
+    ///
+    /// Read in LE mode.
+    /// </summary>
     public class ConfigRegister
     {
         public int offset { get; internal set; }
@@ -100,14 +168,18 @@ namespace WchDotNet.Devices
         public string description { get; internal set; }
         public UInt32 reset { get; internal set; }
         public string type { get; internal set; }
-        public Dictionary<string, string> explaination { get; internal set; }
+        public IDictionary<string, string> explaination { get; set; }
         public RegisterField[] fields { get; internal set; }
     }
+
+    /// <summary>
+    /// A range of bits in a register, with a name and a description
+    /// </summary>
     public class RegisterField
     {
-        public byte[] bit_range { get; internal set; }
+        public int[] bit_range { get; internal set; }
         public string name { get; internal set; }
         public string description { get; internal set; }
-        public Dictionary<string, string> explaination { get; internal set; }
+        public IDictionary<string, string> explaination { get; internal set; }
     }
 }
