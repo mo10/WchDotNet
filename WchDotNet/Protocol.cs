@@ -90,7 +90,7 @@ namespace WchDotNet
         }
         public static byte[] WriteConfig(byte bit_mask, byte[] data)
         {
-            ushort size = (ushort)(sizeof(byte) + 1 + data.Length);
+            ushort size = (ushort)(1 + data.Length);
             byte[] size_raw = BitConverter.GetBytes(size);
 
             IEnumerable<byte> buf = new byte[]
