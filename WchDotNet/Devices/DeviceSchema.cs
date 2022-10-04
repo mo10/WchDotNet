@@ -115,7 +115,7 @@ namespace WchDotNet.Devices
         /// <summary>
         /// Used when erasing 1K sectors
         /// </summary>
-        public int min_erase_sector_number
+        public uint min_erase_sector_number
         {
             get
             {
@@ -127,7 +127,7 @@ namespace WchDotNet.Devices
         /// <summary>
         /// Used when calculating XOR key
         /// </summary>
-        public int uid_size
+        public uint uid_size
         {
             get
             {

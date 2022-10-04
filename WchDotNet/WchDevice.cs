@@ -68,6 +68,7 @@ namespace WchDotNet
 
         public Response Transfer(byte[] write_buf)
         {
+            Console.WriteLine($"Transport: => {string.Join("", write_buf.Select(b => b.ToString("x2")))}");
             if (UsbWriter.Write(write_buf, 1000, out _) != ErrorCode.None)
                 goto Failed;
 
@@ -75,7 +76,7 @@ namespace WchDotNet
             int buf_len;
             if (UsbReader.Read(read_buf, 1000, out buf_len) != ErrorCode.None)
                 goto Failed;
-
+            Console.WriteLine($"Transport: <= {string.Join("", read_buf[..buf_len].Select(b => b.ToString("x2")))}");
             return Response.FromRaw(read_buf, buf_len);
         Failed:
             throw new Exception(UsbDevice.LastErrorString);
@@ -94,13 +95,111 @@ namespace WchDotNet
 
         public byte[] ReadConfig()
         {
-            byte[] buffer = Command.ReadConfig(Constants.CFG_MASK_ALL);
-            Response response = Transfer(buffer);
+            byte[] buf = Command.ReadConfig(Constants.CFG_MASK_ALL);
+            Response resp = Transfer(buf);
 
-            if (!response.IsOK)
+            if (!resp.IsOK)
                 throw new Exception("Failed to read config from chip");
 
-            return response.Payload;
+            return resp.Payload;
+        }
+
+        public bool FlashChunk(UInt32 start_address, byte[] raw, byte[] key)
+        {
+            var xored = raw.Select((x,i) => (byte)(x ^ key[i % 8])).ToArray();
+
+            byte[] buf = Command.Program(start_address, 0, xored);
+            var resp = Transfer(buf);
+            if (!resp.IsOK)
+                throw new Exception($"program 0x{start_address:x08} failed");
+
+            return resp.IsOK;
+        }
+        public bool VerifyChunk(UInt32 start_address, byte[] raw, byte[] key)
+        {
+            var xored = raw.Select((x, i) => (byte)(x ^ key[i % 8])).ToArray();
+
+            byte[] buf = Command.Verify(start_address, 0, xored);
+            var resp = Transfer(buf);
+            if (!resp.IsOK)
+                throw new Exception($"verify response failed");
+
+            if (resp.Payload[0] != 0x00)
+                throw new Exception("Verify failed, mismatch");
+
+            return true;
+        }
+        public bool EraseCode(UInt32 sectors)
+        {
+            var min_sectors = Chip.min_erase_sector_number;
+            if(sectors < min_sectors)
+                sectors = min_sectors;
+
+            byte[] buf = Command.Erase(sectors);
+            var resp = Transfer(buf);
+
+            if (!resp.IsOK)
+                throw new Exception($"erase failed");
+
+            return true;
+        }
+        public bool EraseData(UInt16 sectors)
+        {
+            if (Chip.eeprom_size == 0)
+                throw new Exception("chip doesn't support data EEPROM");
+
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Program the code flash.
+        /// unprotect -> erase -> flash -> verify -> reset
+        /// </summary>
+        /// <param name="raw"></param>
+        public void Flash(byte[] raw)
+        {
+            byte[] key = GetXorKey();
+            byte key_cheksum = key.OverflowingSum();
+
+            byte[] buf = Command.IspKey(new byte[0x1e]);
+            Response resp = Transfer(buf);
+            if (!resp.IsOK)
+                throw new Exception("isp_key failed");
+            if (resp.Payload[0] != key_cheksum)
+                throw new Exception("isp_key checksum failed");
+
+            var chunk_size = 56;
+            UInt32 address = 0x0;
+
+            foreach(var chunk in raw.Chunk(chunk_size))
+            {
+                FlashChunk(address, chunk.ToArray(), key);
+                address += (uint)chunk.Count();
+            }
+            FlashChunk(address, new byte[0], key);
+
+            Console.WriteLine($"Code flash {address} bytes written");
+        }
+        public void Verify(byte[] raw)
+        {
+            byte[] key = GetXorKey();
+            byte key_cheksum = key.OverflowingSum();
+
+            byte[] buf = Command.IspKey(new byte[0x1e]);
+            Response resp = Transfer(buf);
+            if (!resp.IsOK)
+                throw new Exception("isp_key failed");
+            if (resp.Payload[0] != key_cheksum)
+                throw new Exception("isp_key checksum failed");
+
+            var chunk_size = 56;
+            UInt32 address = 0x0;
+
+            foreach (var chunk in raw.Chunk(chunk_size))
+            {
+                VerifyChunk(address, chunk.ToArray(), key);
+                address += (uint)chunk.Count();
+            }
         }
 
         public void UnProtect(bool force=false)
@@ -136,16 +235,13 @@ namespace WchDotNet
                 throw new Exception("isp_end failed");
         }
 
-        public byte[] XorKey()
+        public byte[] GetXorKey()
         {
-            byte checksum = 0;
-            foreach (byte uid in ChipUid)
-            {
-                checksum = (byte)((uid + checksum) & 0xff);
-            }
+            byte checksum = ChipUid.OverflowingSum();
 
             byte[] key = new byte[8] {checksum, checksum, checksum, checksum,
-                                      checksum, checksum, checksum, (byte)((checksum + Chip.chip_id) & 0xff)};
+                                      checksum, checksum, checksum,
+                                      (byte)((checksum + Chip.chip_id) & 0xff)};
 
             return key;
         }
@@ -154,8 +250,6 @@ namespace WchDotNet
         {
             return Chip.name.StartsWith(name);
         }
-
-
 
         public string DumpConfig()
         {
