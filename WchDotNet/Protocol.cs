@@ -59,7 +59,7 @@ namespace WchDotNet
                 size_raw[0], size_raw[1],
                 address_raw[0], address_raw[1], address_raw[2], address_raw[3],
                 padding
-            }.Concat(BitConverter.GetBytes(size));
+            }.Concat(data);
 
             return buf.ToArray();
         }
@@ -75,7 +75,7 @@ namespace WchDotNet
                 size_raw[0], size_raw[1],
                 address_raw[0], address_raw[1], address_raw[2], address_raw[3],
                 padding
-            }.Concat(BitConverter.GetBytes(size));
+            }.Concat(data);
 
             return buf.ToArray();
         }
@@ -135,8 +135,7 @@ namespace WchDotNet
             try
             {
                 resp.Info = (IspInfo)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(IspInfo));
-                resp.Payload = new byte[buf_len - 4];
-                Array.Copy(buf, 4, resp.Payload, 0, buf_len - 4);
+                resp.Payload = buf[4..buf_len];
             }
             finally {
                 handle.Free();
